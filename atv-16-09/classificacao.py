@@ -1,5 +1,4 @@
 import numpy as np
-from random import shuffle
 import pandas as pd
 from sklearn import metrics
 from sklearn.linear_model import Perceptron
@@ -37,36 +36,52 @@ def get_cv_value(xdata, ytarg):
             'knn': KNeighborsClassifier(n_neighbors=7)
         }
 
-        resultado = {}
-        resultado['nome'] = 'tic-tac-toe'
         for clf_name, classific in clfs.items():
             classific.fit(xtr, ytr)
             ypred = classific.predict(xte)
             f1 = round(metrics.f1_score(yte, ypred, average='macro'), 2)
             acc = round(metrics.accuracy_score(yte, ypred), 2)
-            resultado[f'{clf_name}'] = clf_name
-            resultado[f'metrica_f1'] = f1
-            resultado[f'{clf_name}_acc'] = acc
-
-        resultados_rodada.append(resultado)
+            resultado = {
+                'nome': 'tic-tac-toe',
+                'classificador': clf_name,
+                'f1': f1,
+                'acc': acc
+            }
+            resultados_rodada.append(resultado)
 
         ytarg = list(ytarg[part:]) + list(ytarg[:part])
         xdata = list(xdata[part:]) + list(xdata[:part])
 
     return resultados_rodada
 
-def principal():
-    todas_rodadas = []
-    for exec_id in range(4):
-        idx = list(range(len(alltarg)))
-        shuffle(idx)
-        xdata = alldata[idx]
-        ytarg = alltarg[idx]
-        rodadas = get_cv_value(xdata, ytarg)
-        todas_rodadas.extend(rodadas)
+def salvar_resultados_customizados(todas_rodadas, nome_dataset='tic-tac-toe'):
+    classificadores = ['perceptron', 'svm', 'bayes', 'trees', 'knn']
+    metricas = ['f1', 'acc']
+    linhas = []
 
-    df = pd.DataFrame(todas_rodadas)
+    for clf in classificadores:
+        for metrica in metricas:
+            resultados = [
+                rodada[metrica]
+                for rodada in todas_rodadas
+                if rodada['nome'] == nome_dataset and rodada['classificador'] == clf
+            ]
+            while len(resultados) < 20:
+                resultados.append(None)
+            linha = [nome_dataset, clf, metrica] + resultados[:20]
+            linhas.append(linha)
+
+    colunas = ['nome_dataset', 'nome_classificador', 'metrica'] + [f'resultado_{i+1}' for i in range(20)]
+    df = pd.DataFrame(linhas, columns=colunas)
     df.to_csv('result.csv', index=False)
     print('Resultados salvos em result.csv')
 
-principal()
+todas_rodadas = []
+for i in range(4):
+    idx = np.arange(len(alltarg))
+    np.random.shuffle(idx)
+    xdata_shuffled = alldata[idx]
+    ytarg_shuffled = alltarg[idx]
+    todas_rodadas.extend(get_cv_value(xdata_shuffled, ytarg_shuffled))
+
+salvar_resultados_customizados(todas_rodadas)
