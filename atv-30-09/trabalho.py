@@ -90,7 +90,7 @@ for fname in mylist:
 
     print(f"Processando: {fname}")
     df = pd.read_csv(BASEDIR+'/'+fname)
-    df['author'] = fname[ :-4 ] # '.csv' --> 4 caracteres ;)
+    df['author'] = fname[ :-4 ]
     df.columns = MYCOLS
     
     # Aplicar padronização
