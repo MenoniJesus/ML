@@ -11,12 +11,11 @@ from sklearn.model_selection import train_test_split
 from dataset import data_set_v2, normalizacao_data
 
 def load_dataset():
-    dataF = data_set_v2('tic-tac-toe.csv')
-    data2 = normalizacao_data(dataF['dados'])
-    return data2
-
-def load_dataset():
-    dataF = data_set_v2('tic-tac-toe.csv')
+    import os
+    # Obter o diretório do script atual
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    csv_path = os.path.join(script_dir, 'tic-tac-toe.csv')
+    dataF = data_set_v2(csv_path)
     data2 = normalizacao_data(dataF['dados'])
     return data2
 
